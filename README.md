@@ -30,7 +30,7 @@ SHA-256:
 - Model-driven triage app and generative dashboard
 - Three organization-neutral knowledge templates
 - Exploded solution source for inspection
-- Installation and validation guidance
+- Step-by-step deployment runbook, installation guidance, and installer checklist
 
 ## Validation status
 
@@ -44,7 +44,11 @@ Version 1.0.0.1 was imported into a newly provisioned developer environment with
 - the model-driven app dashboard, navigation, views, forms, and filters worked; and
 - the published files were scanned for known credentials, secrets, tenant identifiers, source email addresses, and personal SharePoint URLs.
 
-See [Installation and validation](docs/INSTALLATION.md) before importing.
+Before importing, review:
+
+- [Installation and validation](docs/INSTALLATION.md)
+- [Step-by-step deployment runbook](docs/DEPLOYMENT-RUNBOOK.md)
+- [Installer checklist](docs/INSTALLER-CHECKLIST.md)
 
 ## Important disclaimer
 

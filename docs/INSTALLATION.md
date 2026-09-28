@@ -1,5 +1,7 @@
 # Installation and validation
 
+For the full owner-by-owner procedure, evidence expectations, golden-path scenarios, and troubleshooting, use the [deployment runbook](DEPLOYMENT-RUNBOOK.md). The [installer checklist](INSTALLER-CHECKLIST.md) provides a concise deployment record.
+
 ## Prerequisites
 
 - A non-production Power Platform environment with Dataverse
@@ -70,3 +72,9 @@ Configure an approved connection and destination. Test both the actual recipient
 - Imported connection and MCP configuration can require target-native recreation.
 - Non-production validation does not replace organization-specific security, licensing, performance, accessibility, or production-readiness testing.
 
+## Additional support
+
+- [Deployment runbook](DEPLOYMENT-RUNBOOK.md)
+- [Installer checklist](INSTALLER-CHECKLIST.md)
+- [Public disclaimer and adopter responsibilities](../NOTICE.md)
+- [Security reporting](../SECURITY.md)
