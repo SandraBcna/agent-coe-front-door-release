@@ -10,25 +10,17 @@ It helps users:
 - confirm collected intake details before any Dataverse write; and
 - track catalogue and intake records in a model-driven triage app.
 
+## Business value
+
+The front door gives employees a single place to describe a business need without first choosing a technology or filling out a request form. Checking approved answers and the agent catalogue before intake can reduce duplicate builds and unnecessary CoE requests. Makers get an approved path to self-build when appropriate, while requests that need review arrive with clearer context and an explicit user confirmation. Catalogue and intake records give CoE reviewers a consistent view of demand.
+
+These are intended benefits of the pattern, not measured savings or a promise that a particular deployment will achieve them.
+
 ![Agent CoE Front Door golden path](assets/golden-path-visual.png)
 
 ## Golden path
 
-The core pattern is **answer first, intake second**. A request is created only when the organization needs visibility, review, or CoE-supported delivery.
-
-```mermaid
-flowchart LR
-    A[Employee describes a need] --> B[Check catalogue and approved guidance]
-    B --> C{Can the need be resolved now?}
-    C -->|Existing agent or answer found| D[Reuse or answer directly]
-    C -->|Maker can self-serve| E[Provide self-build guidance and log visibility]
-    C -->|CoE support or review needed| F[Collect structured intake details]
-    F --> G[Show confirmation summary]
-    G --> H{User confirms?}
-    H -->|No| I[Revise or stop without writing]
-    H -->|Yes| J[Create intake request]
-    J --> K[Review and manage in triage app]
-```
+The core pattern is **answer first, intake second**: describe the need, discover approved guidance and existing solutions, decide on a route, capture a confirmed request only when needed, and manage demand in the CoE app. The outcomes are reuse, guided self-build, or CoE-supported intake. A record is written only after the user confirms its details.
 
 ## Download
 

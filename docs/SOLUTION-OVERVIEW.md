@@ -8,61 +8,17 @@ The design principle is **answer first, intake second**. The agent should avoid 
 
 ## Golden path
 
-```mermaid
-flowchart LR
-    A[Employee describes a need] --> B[Check catalogue and approved guidance]
-    B --> C{Can the need be resolved now?}
-    C -->|Existing agent or answer found| D[Reuse or answer directly]
-    C -->|Maker can self-serve| E[Provide self-build guidance and log visibility]
-    C -->|CoE support or review needed| F[Collect structured intake details]
-    F --> G[Show confirmation summary]
-    G --> H{User confirms?}
-    H -->|No| I[Revise or stop without writing]
-    H -->|Yes| J[Create intake request]
-    J --> K[Review and manage in triage app]
-```
+Describe the business need, discover approved guidance and existing solutions, decide on reuse, self-build, or CoE support, capture a confirmed request only when needed, and manage demand in the triage app. The user can revise or stop before confirmation without creating a record.
 
 ## Operating model
 
-```mermaid
-flowchart TB
-    L1[Self-service layer<br/>Find existing agents<br/>Answer licensing and governance questions<br/>Explain approved build paths]
-    L2[Guided routing layer<br/>Classify the need<br/>Apply routing rules<br/>Recommend reuse, self-build, or CoE support]
-    L3[Structured intake layer<br/>Capture business problem, sponsor, users, and timeline<br/>Confirm before writing<br/>Create request for triage]
-
-    L1 -->|Need not resolved| L2
-    L2 -->|Review or support required| L3
-```
-
-Each layer should run only when the previous layer cannot resolve the request. This keeps the front door lightweight for employees while still giving the CoE visibility into demand that needs review or delivery support.
+The agent starts with self-service answers and catalogue discovery, then applies organization-specific routing. Structured intake follows only when review, visibility, or delivery support is needed. This keeps the front door lightweight while giving the CoE visibility into demand.
 
 ## Package boundary
 
 ![Agent CoE Front Door architecture](../assets/architecture-visual.png)
 
-```mermaid
-flowchart LR
-    subgraph Package[Included in this release]
-        A[Front Door agent]
-        B[Advisor and intake skills]
-        C[Agent Catalogue table]
-        D[Agent Intake Request table]
-        E[Triage model-driven app]
-        F[Knowledge templates]
-        G[Dataverse MCP and Teams tool definitions]
-    end
-
-    subgraph Target[Configured by the adopting organization]
-        H[Approved knowledge content]
-        I[Connections and identities]
-        J[Security roles and access]
-        K[Teams destination]
-        L[Catalogue seed records]
-        M[Operational owners and review cadence]
-    end
-
-    Package --> Target
-```
+The release includes the Front Door agent, advisor and intake skills, Agent Catalogue and Agent Intake Request tables, a model-driven triage app, knowledge templates, and Dataverse MCP and Teams tool definitions. The adopting organization supplies approved knowledge, connections and identities, security roles, a Teams destination, catalogue records, and operational ownership.
 
 Knowledge files, credentials, permissions, connection identities, Teams recipients, catalogue records, and production operations do not automatically travel with the solution package. The adopting organization must configure, approve, and test those values in its own environment.
 
