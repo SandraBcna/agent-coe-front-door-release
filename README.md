@@ -1,6 +1,6 @@
 # Agent CoE Front Door
 
-Agent CoE Front Door is a reusable Copilot Studio and Power Platform solution for organizations that need a governed entry point for agent discovery, guidance, and intake.
+Agent CoE Front Door is a reusable Copilot Studio and Power Platform **agent intake and triage process** for organizations that need a governed entry point for agent discovery, guidance, and delivery support.
 
 It helps users:
 
