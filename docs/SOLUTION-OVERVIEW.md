@@ -4,7 +4,7 @@ Agent CoE Front Door is a reusable intake and triage pattern for organizations t
 
 The design principle is **answer first, intake second**. The agent should avoid creating a request when it can answer from approved knowledge, point to an existing catalogue item, or guide a maker through an approved self-service path.
 
-![Agent CoE Front Door golden path](../assets/golden-path-visual.svg)
+![Agent CoE Front Door golden path](../assets/golden-path-visual.png)
 
 ## Golden path
 
@@ -37,6 +37,8 @@ flowchart TB
 Each layer should run only when the previous layer cannot resolve the request. This keeps the front door lightweight for employees while still giving the CoE visibility into demand that needs review or delivery support.
 
 ## Package boundary
+
+![Agent CoE Front Door architecture](../assets/architecture-visual.png)
 
 ```mermaid
 flowchart LR

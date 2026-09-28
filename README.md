@@ -10,7 +10,7 @@ It helps users:
 - confirm collected intake details before any Dataverse write; and
 - track catalogue and intake records in a model-driven triage app.
 
-![Agent CoE Front Door golden path](assets/golden-path-visual.svg)
+![Agent CoE Front Door golden path](assets/golden-path-visual.png)
 
 ## Golden path
 
