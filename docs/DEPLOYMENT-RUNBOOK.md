@@ -299,4 +299,3 @@ This repository does not provide a support SLA. Before raising a public issue:
 3. Include the solution version, high-level reproduction steps, and sanitized error text.
 4. Use private vulnerability reporting for potential template vulnerabilities.
 5. Use Microsoft support or MSRC channels for Microsoft product or service issues.
-
