@@ -10,6 +10,26 @@ It helps users:
 - confirm collected intake details before any Dataverse write; and
 - track catalogue and intake records in a model-driven triage app.
 
+![Agent CoE Front Door golden path](assets/golden-path-visual.svg)
+
+## Golden path
+
+The core pattern is **answer first, intake second**. A request is created only when the organization needs visibility, review, or CoE-supported delivery.
+
+```mermaid
+flowchart LR
+    A[Employee describes a need] --> B[Check catalogue and approved guidance]
+    B --> C{Can the need be resolved now?}
+    C -->|Existing agent or answer found| D[Reuse or answer directly]
+    C -->|Maker can self-serve| E[Provide self-build guidance and log visibility]
+    C -->|CoE support or review needed| F[Collect structured intake details]
+    F --> G[Show confirmation summary]
+    G --> H{User confirms?}
+    H -->|No| I[Revise or stop without writing]
+    H -->|Yes| J[Create intake request]
+    J --> K[Review and manage in triage app]
+```
+
 ## Download
 
 The clean-room-tested unmanaged solution is available from the [v1.0.0.1 release](https://github.com/SandraBcna/agent-coe-front-door-release/releases/tag/v1.0.0.1).
@@ -46,6 +66,9 @@ Version 1.0.0.1 was imported into a newly provisioned developer environment with
 
 Before importing, review:
 
+- [Solution overview and diagrams](docs/SOLUTION-OVERVIEW.md)
+- [User stories](docs/USER-STORIES.md)
+- [Test prompts](docs/TEST-PROMPTS.md)
 - [Installation and validation](docs/INSTALLATION.md)
 - [Step-by-step deployment runbook](docs/DEPLOYMENT-RUNBOOK.md)
 - [Installer checklist](docs/INSTALLER-CHECKLIST.md)
