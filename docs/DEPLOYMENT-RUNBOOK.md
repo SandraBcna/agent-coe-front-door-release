@@ -286,6 +286,7 @@ Keep production evidence outside this public repository.
 | Agent uses the wrong KB | Ambiguous source descriptions or instruction map | Tighten source descriptions and enforce the KB scope map |
 | App Play is unavailable or fails | App not saved/published after import | Open the app designer, save and publish once, then relaunch |
 | Dashboard is missing | UX Agent Project unsupported or not exposed | Confirm tenant support; treat the dashboard as optional until verified |
+| "Can't save this tool. Try again" when saving the Notify the CoE triage channel tool | Imported connector ACL or wrong connector variant | Copy the tool name and the "Description for AI" from the tool details and store them temporarily. Recreate the tool using the "Post message in a chat or channel" Teams action, replace the name and description with the originals, and follow the "Configure Teams notification" section |
 | Teams message reaches wrong place | Generative recipient selection or stale action | Use an explicit destination and recreate the action in the target |
 | Teams body differs from approved text | Generative message composition | Use a deterministic Power Automate template |
 | Removed items reappear after upgrade | Unmanaged solution merge behavior | Perform documented post-upgrade cleanup |
