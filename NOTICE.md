@@ -2,7 +2,7 @@
 
 ## Status
 
-Agent CoE Front Door is an independent reusable reference template for evaluation and adaptation. Version 1.0.0.1 completed the non-production validation described in the repository README.
+Agent CoE Front Door is an independent reusable reference template for evaluation and adaptation. Version 1.0.0.7 completed the non-production import and partial target validation described in the repository README. The Power Platform Inventory API requires target-specific delegated authentication and acceptance tests.
 
 ## No Microsoft endorsement or support commitment
 
@@ -38,7 +38,8 @@ This notice does not authorize disclosure, override a sensitivity label, replace
 
 - Target-native recreation of the Dataverse MCP tool and connection may be required.
 - Knowledge retrieval must be tested even when sources show Ready.
+- The package includes no knowledge files or organization SharePoint source. Keep repository KB-01, KB-02, and KB-03 templates out of the agent until locally approved; attach approved sources and remove any inherited placeholder left by an older unmanaged import.
+- Power Platform inventory remains disabled until a target Entra application owner configures the connector and an administrator grants delegated consent.
 - UX Agent Project support can vary by tenant.
 - Unmanaged solution imports do not remove obsolete components.
 - Production behavior depends on target configuration, identity, permissions, licensing, capacity, and service availability.
-

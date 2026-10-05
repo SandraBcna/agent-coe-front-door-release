@@ -1,10 +1,11 @@
-# Agent CoE Front Door
+# Agent CoE Front Door — Power Platform inventory
 
-Agent CoE Front Door is a reusable Copilot Studio and Power Platform **agent intake and triage process** for organizations that need a governed entry point for agent discovery, guidance, and delivery support.
+This repository contains Agent CoE Front Door: a reusable Copilot Studio and Power Platform **agent intake and triage process** with optional technical discovery of Copilot Studio and Microsoft 365 Copilot Agent Builder resources through the Power Platform Inventory API.
 
 It helps users:
 
 - check the internal catalogue before requesting a new agent;
+- discover tenant agents from a selected daily inventory source while keeping the catalogue curated;
 - get licensing, governance, routing, and naming guidance from organization-owned knowledge;
 - choose between reuse, guided self-build, and CoE-supported delivery;
 - confirm collected intake details before any Dataverse write; and
@@ -24,41 +25,55 @@ The core pattern is **answer first, intake second**: describe the need, discover
 
 ## Download
 
-The clean-room-tested unmanaged solution is available from the [v1.0.0.1 release](https://github.com/SandraBcna/agent-coe-front-door-release/releases/tag/v1.0.0.1).
+The current unmanaged solution source is version 1.0.0.7.
 
 File:
 
-`AgentCoEFrontDoor_1_0_0_1.zip`
+`release/AgentCoEFrontDoor_1_0_0_7.zip`
 
 SHA-256:
 
-`08A63739B3B7518877F313C05C01701FAB6F0B7E8D90CFFF03334A8D551ECFF0`
+`58CF4DEA2FC4EB1482F4D80990247FE427070EC714E79C1EA730DAD4BA0D5C31`
 
 ## Included
 
 - Copilot Studio agent with advisor and intake skills
 - Agent Catalogue and Agent Intake Request Dataverse tables
-- Dataverse MCP and configurable Microsoft Teams tools
+- Tenant Agent Inventory table and a disabled daily Power Platform Inventory API flow, custom connector, and connection reference
+- Dataverse MCP tool
 - Model-driven triage app and generative dashboard
-- Three organization-neutral knowledge templates
-- Exploded solution source for inspection
+- Three organization-neutral knowledge templates in `knowledge/` (attach your approved versions before sharing the agent)
+- Exploded solution source in `source/` for inspection
 - Step-by-step deployment runbook, installation guidance, and installer checklist
+
+> **Agent Catalogue vs Tenant Agent Inventory:** the **Agent Catalogue** is the curated, human-approved list the agent recommends to employees; **Tenant Agent Inventory** is a technical discovery cache populated by the optional daily flow (existence, not approval). The inventory flow discovers only Copilot Studio / Microsoft 365 Copilot Agent Builder agents — **not** custom-engine or pro-code agents (for example, Microsoft 365 Agents Toolkit / Agents SDK), nor other Power Platform resource types. See [Solution overview](docs/SOLUTION-OVERVIEW.md) and [Power Platform Inventory API](docs/POWER-PLATFORM-INVENTORY.md).
 
 ## Validation status
 
-Version 1.0.0.1 was imported into a newly provisioned developer environment with Dataverse and exercised through a clean golden path:
+A non-production sandbox was used to validate the core pattern:
 
 - solution import completed successfully;
-- KB-01, KB-02, and KB-03 retrieved independently;
-- target-native Dataverse MCP catalogue and create operations worked;
-- reuse and licensing scenarios passed;
-- intake required explicit confirmation before creating and reading back `REQ-0001`;
-- the model-driven app dashboard, navigation, views, forms, and filters worked; and
+- the agent, three tables, model-driven app, custom connector, connection reference, and disabled daily flow imported;
+- the dashboard, catalogue, intake, inventory navigation, and the inventory views opened;
+- the three knowledge templates reached Ready and retrieved independently with the expected scoped answers;
+- the Front Door handled an empty target catalogue and inventory without exposing technical payloads;
+- a complete TEST intake was summarized, then stopped on request; Dataverse remained at zero intake records before and after; and
 - the published files were scanned for known credentials, secrets, tenant identifiers, source email addresses, and personal SharePoint URLs.
+
+For the Power Platform Inventory API extension: in a fresh sandbox the delegated connector returned HTTP 200 and the daily flow succeeded twice, writing seven unique Copilot Studio inventory rows without duplicates. The flow was turned Off after testing. No Agent Builder records existed in that tenant, so that mapping remains untested with live data. The agent queried the refreshed inventory and catalogue through Dataverse and withheld an inventory-only draft from its reply.
+
+On clean import, Copilot Studio can display empty parent instructions despite their presence in the package; restore them through the designer, save, reopen, and verify persistence. Imported connections require target-native binding. This maker-admin preview is **not** a non-admin security test: before employee rollout, configure least-privilege access and verify employee-facing behavior with a non-admin account.
+
+Open validation gates are documented rather than hidden: the Power Platform Inventory API requires an authorized target app owner and administrator consent; approved knowledge must be attached before employee use; channel, evaluation, and non-admin security tests remain adopter-owned.
+
+This package ships the three knowledge files as templates only: copy them from `knowledge/`, obtain local approval, attach them to the agent, and test retrieval before sharing it.
+
+An earlier build of version 1.0.0.7 was imported into a fresh sandbox; the exact ZIP bytes in this release differ by targeted instruction and packaging edits and have not been re-imported as these exact bytes. Perform your own clean import and functional verification before relying on it.
 
 Before importing, review:
 
 - [Solution overview and diagrams](docs/SOLUTION-OVERVIEW.md)
+- [Power Platform Inventory API setup and source mapping](docs/POWER-PLATFORM-INVENTORY.md)
 - [User stories](docs/USER-STORIES.md)
 - [Test prompts](docs/TEST-PROMPTS.md)
 - [Installation and validation](docs/INSTALLATION.md)
@@ -75,8 +90,6 @@ Do not use example placeholders as approved policy. Do not add credentials, toke
 
 See [NOTICE.md](NOTICE.md) for the full disclaimer and [LICENSE](LICENSE) for licensing terms.
 
-## Gallery submission
+## Compatibility identifiers
 
-The same solution is under review for the Microsoft Copilot Studio Gallery:
-
-https://github.com/microsoft/copilot-studio-gallery/pull/27
+The exported solution retains the existing `cat_` Dataverse schema prefix and related internal component identifiers for upgrade compatibility. They are technical identifiers, not adopting-organization branding. Renaming them would require rebuilding the solution and break upgrades from the current package lineage.

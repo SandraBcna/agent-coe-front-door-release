@@ -1,0 +1,65 @@
+# Power Platform Inventory API source
+
+The solution includes one **disabled** daily flow and custom connector for Power Platform Inventory API. It discovers Copilot Studio and Microsoft 365 Copilot Agent Builder resources, not Agent 365 packages. It does not change the curated Agent Catalogue or convey CoE approval. Tenant Agent Inventory is a technical discovery cache only.
+
+The `microsoft.copilotstudio/agents` resource type includes agents authored in **Copilot Studio** and **Microsoft 365 Copilot Agent Builder**. The flow retains `properties.createdIn` so the app's Copilot Studio and Agent Builder views can separate them. A clean CDX tenant query returned Copilot Studio rows but no Agent Builder rows, so the latter's live behavior still needs a tenant containing that type of agent.
+
+### Scope and limits of this source
+
+The query targets **only** the `microsoft.copilotstudio/agents` resource type. It therefore does **not** discover:
+
+- custom-engine or pro-code agents built outside Power Platform — for example agents produced with the **Microsoft 365 Agents Toolkit / Agents SDK**, Azure AI Foundry, or other external platforms;
+- declarative agents that live only in Microsoft 365 Copilot and are not surfaced as Power Platform Copilot Studio resources; or
+- other Power Platform resource types (Power Automate flows, Power Apps, connectors, and so on).
+
+Tenant Agent Inventory reflects what this single API type returns. Treat a missing agent as "not returned by this source", not proof that it does not exist. Adopters who need those other agent types must add their own discovery; this flow does not attempt it.
+
+The Power Platform connector issues `POST https://api.powerplatform.com/resourcequery/resources/query?api-version=2024-10-01` with:
+
+```json
+{
+  "TableName": "PowerPlatformResources",
+  "Clauses": [
+    {"$type": "where", "FieldName": "type", "Operator": "in~", "Values": ["'microsoft.copilotstudio/agents'"]}
+  ],
+  "Options": {"Top": 100, "SkipToken": ""}
+}
+```
+
+The flow processes `data` and follows **every** `skipToken` until empty. It validates page shape, upserts by a provider-scoped `cat_resourceid` (`pp:<environmentId>:<name>`), then deletes stale rows **only** where `cat_agenttype` is `Power Platform Inventory API`. A failed query, invalid page, upsert error, or outstanding continuation after the pagination limit prevents cleanup. Rows from older solution versions with another source marker remain untouched; an operator must review and remove those separately.
+
+## Before setup
+
+Use a target-owned application, an authorized signed-in inventory reader, and a separate approved Dataverse connection with rights to read/create/update/delete rows in Tenant Agent Inventory. The Power Platform API permission allows tenant-wide inventory discovery; obtain the organization's security approval before consenting or running a query. Review the target's DLP, connector, licensing, flow ownership, credential renewal, and retention requirements. No tenant identity or secret is included in this package.
+
+The flow is **Off** after a fresh import. Leave it Off until the connection works and a full test refresh has passed. A successful import alone does not make the API or the agent usable.
+
+## Target-owner setup
+
+1. **Register the app.** In the target tenant's Microsoft Entra admin center, create a single-tenant, organization-owned app registration. Record its **Application (client) ID** and **Directory (tenant) ID** in the organization's approved secret/configuration store, not this repository. Under **API permissions > Add a permission > APIs my organization uses**, choose **Power Platform API** (application ID `8578e004-a5c6-46e7-913e-12f58912df43`), add **delegated** `ResourceQuery.Resources.Read`, and obtain admin consent where required. The inventory endpoint does **not** accept app-only service principals or managed identities; they return HTTP 403.
+2. **Configure the imported connector.** Create a client secret according to the organization's rotation policy. In the target Power Apps solution, open **Custom connectors > Power Platform Agent Inventory > Security**. Select OAuth 2.0 / Microsoft Entra ID and enter the target app's client ID, client secret, and tenant ID; use resource URL `https://api.powerplatform.com` and scope `ResourceQuery.Resources.Read`. Keep on-behalf-of login disabled. The packaged all-zero client ID is a placeholder, not a working app. Enter the secret directly in the target service; do not export it into a solution, terminal log, screenshot, or GitHub.
+3. **Register this connector's redirect.** Save/update the connector, copy its generated redirect URL from the **Security** page, then add that exact URL under **Authentication > Add a platform > Web > Redirect URIs** in the Entra app. Redirects from other environments are not interchangeable. Save both sides before making the connection.
+4. **Create and test the delegated connection.** In the target Power Automate/Power Apps environment, create a **Power Platform Agent Inventory** connection and sign in as the approved inventory reader. In the connector's **Test** page run **Query Copilot Studio agents** with the request body above (initial empty `SkipToken`). Require HTTP 200 and inspect the `data` array and optional `skipToken`. An HTTP 403 here calls for checking the signed-in identity, delegated consent, connector OAuth values, and Power Platform access; do not swap to an app-only identity.
+5. **Bind both references and inspect the flow.** In **Solutions > Agent CoE Front Door > Connection references**, bind `cat_ppinventory` to the tested inventory connection and the imported Dataverse reference to an authorized Dataverse connection. In CDX, binding `cat_ppinventory` required selecting the connection, clicking **Save**, then a second **Save changes** confirmation; reopen the reference to confirm it persisted. Open **CAT - Refresh Power Platform Agent Inventory Daily** and run **Flow checker** before enabling it. If its query action shows missing required fields, use `TableName = PowerPlatformResources`, the `where` clause for `type in~ ('microsoft.copilotstudio/agents')`, `Top = 100`, and the **SkipToken variable dynamic-content token**. The packaged action uses flattened `body/TableName`, `body/Clauses`, `body/Options/Top`, and `body/Options/SkipToken` fields. Typing `@variables('SkipToken')` as plain text in the designer can escape the leading `@` and send a literal instead. Save, reopen, and require **zero checker errors**.
+6. **Test a complete refresh before scheduling.** Run once in non-production, inspect all run actions, and compare the complete unique `(environmentId, name)` result set across **all pages** with Dataverse rows whose `cat_agenttype` is `Power Platform Inventory API`. Confirm `pp:<environmentId>:<name>` uniqueness, expected platform, draft/publication, and quarantine values in the model-driven app's **Power Platform Agents** view and read-only form. Run a second time and require no duplicates. In a controlled test, verify removed resources are cleaned up only after successful full retrieval, and a simulated retrieval/upsert failure leaves existing rows intact. Only then turn on this one daily flow and monitor its first scheduled runs.
+7. **Connect the agent separately.** In Copilot Studio, verify the parent instructions survived import; restore and save them through the designer if missing. Bind the imported **Microsoft Dataverse MCP Server** to a target-native Dataverse connection and verify its `read_query`, `search`, `describe`, and `create_record` tool permissions load; a connection shown as "Connected" can still return HTTP 403 until refreshed. Test a catalogue query and an inventory-only draft using the agent preview. Do **not** expose an end-user channel until locally approved KB-01/02/03 sources, non-admin authorization, and employee-disclosure tests pass.
+
+**Upgrades:** An unmanaged import does not delete previous components, knowledge sources, or inventory rows. If an earlier version included another inventory flow, turn it off and wait for active runs to finish; remove obsolete components only after reviewing dependencies and retention policy. The new refresh deletes only its own API-sourced stale rows.
+
+## Supported field mapping
+
+`name` and `properties.environmentId` form the unique resource ID; `properties.displayName` (fallback `name`) supplies Agent Name; `properties.createdIn`, `schemaName`, `createdAt`, `entraAppId`, `authentication`, `channels`, and `lastPublishedAt` populate corresponding platform, schema, creation date, app ID, authentication, channels, and derived Draft/Published columns; top-level `location` maps to Location. The search text contains name, schema, and authoring tool. Missing optional values remain blank. Legacy package-only columns (manifest/version, supported hosts, availability, blocking, etc.) are **not** inferred from this API. Published metadata can lag unpublished draft changes; classic V1 bots are not included. Some Copilot Studio fields are preview and may be null. The flow deliberately does not claim that a resource is recommended, governed, or approved.
+
+`properties.isQuarantined` maps to `cat_isquarantined` on both create and update. A missing preview value is treated as restricted (`true`) until an administrator verifies otherwise; the cache must never silently imply a potentially quarantined resource is safe.
+
+The flow caps pagination at 1,000 pages / one day and enables Dataverse list pagination up to 100,000 stale rows; if a target exceeds these operational bounds, review capacity and update the flow before accepting the results. In a fresh CDX sandbox, the delegated API query returned HTTP 200; the flow checker reported zero errors and warnings after target connection binding and designer correction; two runs succeeded and produced seven unique API-sourced rows with no duplicates. The flow was then turned Off. This tenant had no Agent Builder records, and the latest ZIP without knowledge attachments has not been clean-imported or used for these runs. A target-native Dataverse MCP connection was required for the imported agent to read the refreshed table. Do not activate a new target schedule until its own gates pass.
+
+The solution uses the existing **CAT** publisher (schema prefix `cat`) and includes the `cat_publisher` column on Tenant Agent Inventory. The Power Platform Inventory API does not supply a trustworthy agent publisher field in its documented agent schema, so the refresh leaves this column empty rather than inventing one. The table retains legacy package-only columns for compatibility with prior solution versions, but this package does not include a package connector, connection reference, flow, or package-specific views; the Power Platform flow does not populate those columns.
+
+The triage model-driven app includes Tenant Agent Inventory in its navigation. Its main view shows source, platform, publication state, quarantine state, publisher where available, and last-seen time. The **Power Platform Agents** view narrows to API-sourced rows and shows environment and publication details without legacy package-only columns. The record form exposes the same key evidence in a read-only layout for CoE reviewers. These are administrative views, not an employee-facing directory; grant app and table Read permissions only to the approved CoE audience.
+
+## Employee-facing access boundary
+
+The inventory table can include unpublished and unapproved agent resources. The agent may query it to identify leads, but should identify an agent to an ordinary employee only when an approved catalogue record and audience access have been verified. Otherwise it should offer a neutral CoE handoff without revealing even the existence or count of inventory-only, unpublished, blocked, quarantined or audience-restricted records, let alone names, owners, publishers, IDs, channels or configuration. **Instructions alone cannot enforce this boundary.** A maker preview using a shared administrator MCP connection is not evidence of employee isolation; a shared connection may give the agent the administrator's reach. Restrict Dataverse table/app roles and MCP connection rights, verify the intended execution identity, and test as a licensed non-admin and an unauthorized user before enabling an employee channel. Test an inventory-only draft, an approved audience-accessible catalogue record, a quarantined/blocked record, and an attempted raw listing. If those tests cannot enforce the intended boundary, keep the agent internal to CoE reviewers. No employee should receive a full directory or raw tool output.
+
+References: [Inventory API](https://learn.microsoft.com/en-us/power-platform/admin/inventory-api), [shared schema](https://learn.microsoft.com/en-us/power-platform/admin/inventory-schema), [Copilot Studio agent schema](https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-agent-inventory), [Power Platform API authentication](https://learn.microsoft.com/en-us/power-platform/admin/programmability-authentication-v2).

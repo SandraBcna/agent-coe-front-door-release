@@ -8,19 +8,22 @@ This runbook takes an installer from environment preparation through operational
 
 - Agent CoE Front Door Copilot Studio agent
 - Agent Catalogue and Agent Intake Request Dataverse tables
+- Tenant Agent Inventory Dataverse table and filtered views
+- Disabled daily Power Platform inventory refresh flow, custom connector, and connection reference
 - Agent CoE Triage model-driven app and site map
 - Advisor and intake skills
 - Microsoft Dataverse MCP tool definition
-- Configurable Microsoft Teams notification tool definition
+- Optional target-native Teams notification setup (no imported Teams action)
 - Microsoft product-documentation knowledge definitions
 - Web resources, icons, and intake-status logic
 - UX Agent Project files for the triage dashboard
-- Three organization-neutral knowledge templates
+- Three organization-neutral knowledge templates in the repository, not the solution ZIP
 
 ### Not included
 
 - Approved organization policy or licensing advice
 - A production SharePoint knowledge library
+- KB-01, KB-02, or KB-03 knowledge attachments; attach approved versions after import
 - A fixed Teams recipient
 - Credentials, connection secrets, or target identities
 - Production security roles or user assignments
@@ -43,6 +46,7 @@ Assign named owners before import.
 | Teams owner | Approve the connection identity, destination, message pattern, and lifecycle |
 | Business acceptance owner | Approve test evidence and the deployment decision |
 | Operational support owner | Own monitoring, incidents, capacity, changes, and periodic review |
+| Identity administrator | Approve delegated Power Platform Inventory API permission, connector identity, and credential rotation |
 
 ## 3. Complete licensing and capacity review
 
@@ -74,29 +78,35 @@ Record who approved the decision and when it must be reviewed.
 8. Confirm whether UX Agent Project components are supported if the dashboard is required.
 9. Identify a licensed non-admin acceptance tester.
 10. Capture screenshots or exported configuration evidence under organizational policy.
+11. If inventory is enabled, approve a dedicated Entra application with delegated `ResourceQuery.Resources.Read`.
 
 Do not import until required configuration items have owners and target values.
 
 ## 5. Import the solution
 
-1. Download `AgentCoEFrontDoor_1_0_0_1.zip` from the GitHub release.
+1. Use `AgentCoEFrontDoor_1_0_0_7.zip` from the local draft release directory; it is not published on GitHub.
 2. Verify its SHA-256:
 
-   `08A63739B3B7518877F313C05C01701FAB6F0B7E8D90CFFF03334A8D551ECFF0`
+   `58CF4DEA2FC4EB1482F4D80990247FE427070EC714E79C1EA730DAD4BA0D5C31`
 
 3. In `make.powerapps.com`, select the target environment.
 4. Open **Solutions** and import the ZIP as an unmanaged solution.
-5. Map the Dataverse and Teams connection references when prompted.
+5. Map the Dataverse connection reference when prompted. The Power Platform Inventory API reference remains unbound until its target-owned OAuth setup; no Teams action or reference is bundled.
 6. Wait for **Solution imported successfully**.
 7. Confirm:
    - unique name: `AgentCoEFrontDoor`
-   - version: `1.0.0.1`
+   - version: `1.0.0.7` (draft package; an earlier build imported into CDX, but the latest ZIP without knowledge attachments has not had a fresh import)
 8. Open solution history and capture the successful import result.
 9. Publish all customizations.
 
 This is a fresh-install release. Do not use it to downgrade an environment already carrying a higher solution version.
+After import, inspect the parent agent instructions in Copilot Studio. Two fresh CDX imports left them empty despite their presence in the solution ZIP; restore the packaged instructions through the designer, save, reopen, and verify persistence before testing. This is a known portability gate, not an optional customization.
 
-## 6. Configure organization knowledge
+## 6. Configure Power Platform inventory
+
+Follow the ordered [Power Platform Inventory API setup and acceptance procedure](POWER-PLATFORM-INVENTORY.md): obtain delegated permission and consent; configure target OAuth and generated Web redirect; create/test the signed-in connection; bind both references; confirm flow checker; test two complete refreshes and failure-safe cleanup; then enable the single daily schedule. The package contains no Agent 365 flow or connector. An unmanaged import into an environment with an older provider does not remove its flow or rows; turn the old schedule off and review its components separately.
+
+## 7. Configure organization knowledge
 
 The agent maps knowledge by scope:
 
@@ -106,24 +116,31 @@ The agent maps knowledge by scope:
 | KB-02 Governance and Routing | Governance gates, risk, approvals, and support route |
 | KB-03 Naming, Ownership, and Catalogue | Naming, lifecycle ownership, review, and catalogue standards |
 
-1. Copy the three files from `knowledge/` into an approved working location.
+1. Copy the three template files from the repository's `knowledge/` directory into an approved working location. They are not in the solution ZIP.
 2. Replace every `[ORGANIZATION INPUT]` placeholder.
 3. Obtain approval from the knowledge owner.
-4. Upload each file independently to the agent, or place approved content in a governed SharePoint library.
-5. Give each source its KB identifier and a scope-specific description.
-6. Confirm each source reaches Ready.
-7. Save and publish the agent.
-8. Test each KB independently with the intended end-user identity.
-9. Confirm the answer does not substitute content from a different KB.
-10. Record the owner, approval date, and next review date.
+4. If upgrading from an earlier unmanaged version, remove any inherited placeholder SharePoint knowledge source.
+5. Upload each approved file independently to the agent, or place approved content in a governed SharePoint library. Do not share the agent or enable an employee-facing channel before this setup and the three retrieval tests pass.
+6. Give each source its KB identifier and a scope-specific description.
+7. Confirm each source reaches Ready.
+8. Save and publish the agent.
+9. Test each KB independently with the intended end-user identity.
+10. Confirm the answer does not substitute content from a different KB.
+11. Record the owner, approval date, and next review date.
 
 Ready status alone is not proof of retrieval. Indexing behavior can vary by environment.
 
-## 7. Configure Dataverse MCP
+Make instruction and knowledge changes through Copilot Studio, then save and publish. Direct Dataverse edits can appear in an export while the designer republishes an older cached configuration.
+
+In earlier clean-environment validation, all three attached files reached Ready and returned their expected independent scopes after an inherited placeholder source was removed, the agent was saved and published, and indexing completed. This draft packages neither those files nor the placeholder source.
+
+## 8. Configure Dataverse MCP
 
 1. Open the Microsoft Dataverse MCP Server tool in the agent.
 2. Bind it to an approved target connection using `shared_commondataserviceforapps`.
+   A fresh target-native connection resolved HTTP 403 on an imported tool in CDX without removing the tool; save the agent and reopen the tool to confirm its permissions load.
 3. Grant only the permissions required to:
+   - read `cat_tenantagentinventory` for discovery, without exposing that table directly to ordinary employees;
    - read `cat_agentcatalogue`;
    - create `cat_agentintakerequest`; and
    - read back `cat_agentintakerequest`.
@@ -134,31 +151,27 @@ Ready status alone is not proof of retrieval. Indexing behavior can vary by envi
 
 ### If the imported MCP tool returns HTTP 403
 
-Reauthentication may not repair an inherited connector ACL.
+An imported connection can appear connected but still fail the tool-catalogue request. Do not broaden its permissions to bypass an authorization error.
 
 1. Confirm the MCP feature and both allowed clients again.
-2. Remove the imported MCP tool from the target agent.
-3. Add a new target-native Microsoft Dataverse MCP Server.
-4. Create or select a fresh `shared_commondataserviceforapps` connection.
-5. Save and reload the agent.
-6. Confirm the tool catalogue loads.
-7. Repeat the least-privilege read and create tests.
-8. Republish the agent.
+2. Create or select a fresh target-native `shared_commondataserviceforapps` connection **on the imported MCP tool**.
+3. Save, reload, and confirm its permitted tool catalogue loads; this resolved HTTP 403 in CDX without replacing the tool.
+4. Only if it still fails, remove the imported tool and add a new target-native Microsoft Dataverse MCP Server with the approved connection.
+5. Repeat the least-privilege inventory/catalogue read and confirmed TEST create/read-back checks before publishing.
 
-Do not broaden permissions merely to bypass an authorization error.
+Before giving employees access, verify whether the MCP uses a shared account or end-user credentials. Maker-admin preview cannot prove the safety of a shared administrator connection. Use approved least-privilege connection/table permissions and a non-admin identity test; if the restricted inventory cannot be isolated, keep the agent CoE-only.
 
-## 8. Configure Teams notification
+## 9. Configure Teams notification
 
 No recipient is packaged.
 
-1. Open the Teams notification tool.
-2. Replace AI-filled recipient behavior with an approved explicit destination.
-3. Recreate the Teams action in the target environment when required.
-4. Select the approved connection identity.
-5. Decide whether the destination is a user, chat, or channel.
-6. Obtain approval from the destination owner before testing.
-7. Use a TEST-prefixed intake and a non-sensitive message.
-8. Verify:
+1. Decide whether notifications are needed; the package intentionally omits the imported Teams action, which can carry a broken cross-environment connection reference and prevent agent preview.
+2. If needed, create a target-native **Post message in a chat or channel** Teams action in Copilot Studio.
+3. Set an explicit, approved destination, never an AI-selected recipient.
+4. Select the approved connection identity and decide whether the destination is a user, chat, or channel.
+5. Obtain approval from the destination owner before testing.
+6. Use a TEST-prefixed intake and a non-sensitive message.
+7. Verify:
    - the actual recipient;
    - the exact received message;
    - no unintended recipient received it; and
@@ -166,7 +179,7 @@ No recipient is packaged.
 
 The validated connector delivered successfully, but generative composition expanded the intended test text. Use a locked Power Automate template or equivalent deterministic pattern when exact content control is required.
 
-## 9. Publish and test the model-driven app
+## 10. Publish and test the model-driven app
 
 1. Open **Agent CoE Triage** in the solution.
 2. Save and publish it once after import.
@@ -175,6 +188,8 @@ The validated connector delivered successfully, but generative composition expan
    - Agent Intake Triage Dashboard;
    - Agent Catalogues navigation;
    - Agent Intake Requests navigation;
+   - Tenant Agent Inventory navigation;
+   - Active, Power Platform Agents, Copilot Studio, and Agent Builder inventory views;
    - views and forms;
    - filters and search;
    - the TEST intake record; and
@@ -185,7 +200,7 @@ The validated connector delivered successfully, but generative composition expan
 
 Administrator testing alone is not sufficient evidence of correct security.
 
-## 10. Run the golden path
+## 11. Run the golden path
 
 Use non-sensitive TEST data.
 
@@ -226,11 +241,11 @@ Pass when:
 - the record is read back; and
 - no notification is sent unless requested and configured.
 
-## 11. Acceptance and release gates
+## 12. Acceptance and release gates
 
 | Area | Pass condition |
 |---|---|
-| Import | Solution history is successful and version is 1.0.0.1 |
+| Import | Solution history is successful and version is 1.0.0.7 |
 | Knowledge | KB-01, KB-02, and KB-03 retrieve independently for intended users |
 | Reuse | Catalogue is checked and unnecessary intake is avoided |
 | Intake | Confirmation is required before a valid TEST record is created |
@@ -241,10 +256,11 @@ Pass when:
 | Evaluation | Representative evaluations meet organization-approved thresholds |
 | Channel | Approved end-user channel works end to end |
 | Operations | Support, capacity, monitoring, review, and change owners are assigned |
+| Inventory | Power Platform API complete paginated count, idempotent upsert, source-scoped success-only cleanup, and filtered views are verified |
 
 A successful solution import is not a deployment approval. Release only when the organization's required gates pass.
 
-## 12. Upgrade and cleanup guidance
+## 13. Upgrade and cleanup guidance
 
 Unmanaged imports merge components and do not remove obsolete objects.
 
@@ -256,10 +272,11 @@ When upgrading an earlier environment, inspect and remove or disconnect:
 - fixed or obsolete Teams recipients;
 - connections owned by former installers; and
 - duplicate or superseded MCP tools.
+- an inherited Agent 365 connector, connection reference, flow, and stale rows from an earlier unmanaged import, if applicable (turn the old flow Off before removal).
 
 Back up the target solution and configuration evidence before changes.
 
-## 13. Operational handoff
+## 14. Operational handoff
 
 Document:
 
@@ -276,22 +293,31 @@ Document:
 
 Keep production evidence outside this public repository.
 
-## 14. Troubleshooting
+
+## 15. Troubleshooting
 
 | Symptom | Likely cause | Resolution |
 |---|---|---|
-| MCP tool returns HTTP 403 | Imported connector ACL or wrong connector variant | Confirm allowed clients, then recreate the tool and fresh `shared_commondataserviceforapps` connection |
+| MCP tool returns HTTP 403 | Imported connection ACL or wrong connector variant | Confirm allowed clients and bind a fresh target-native `shared_commondataserviceforapps` connection; recreate the tool only if its catalogue still fails to load |
 | MCP tool catalogue is empty | Feature, client allow-list, connection, or reload issue | Recheck feature and clients, authenticate, save, and reload the agent |
 | Knowledge shows Ready but is not retrieved | Environment-specific indexing or scope issue | Upload independently, align names/descriptions, publish, wait for indexing, and test each KB separately |
 | Agent uses the wrong KB | Ambiguous source descriptions or instruction map | Tighten source descriptions and enforce the KB scope map |
 | App Play is unavailable or fails | App not saved/published after import | Open the app designer, save and publish once, then relaunch |
 | Dashboard is missing | UX Agent Project unsupported or not exposed | Confirm tenant support; treat the dashboard as optional until verified |
-| "Can't save this tool. Try again" when saving the Notify the CoE triage channel tool | Imported connector ACL or wrong connector variant | Copy the tool name and the "Description for AI" from the tool details and store them temporarily. Recreate the tool using the "Post message in a chat or channel" Teams action, replace the name and description with the originals, and follow the "Configure Teams notification" section |
+| Imported Teams tool says "Can't save this tool. Try again" | Imported connector ACL or wrong connector variant | Copy its name and Description for AI, remove it, recreate it in the target with **Post message in a chat or channel**, restore the approved details, then follow Configure Teams notification; this draft package does not include the imported action |
 | Teams message reaches wrong place | Generative recipient selection or stale action | Use an explicit destination and recreate the action in the target |
 | Teams body differs from approved text | Generative message composition | Use a deterministic Power Automate template |
 | Removed items reappear after upgrade | Unmanaged solution merge behavior | Perform documented post-upgrade cleanup |
+| Inventory count is lower than the connector result | Incomplete paging or a failed upsert | Confirm the custom connector returns the complete collection, inspect the failed action, and do not run stale cleanup |
+| Repeat refresh creates more rows | The environment and resource name do not map consistently to Resource ID | Check the `pp:<environmentId>:<name>` upsert key and complete pagination before cleanup |
+| Power Platform Inventory API connection cannot be created | Placeholder OAuth values remain, the installer is not an app owner, or admin consent is missing | Have an authorized identity owner configure the imported connector, add its generated redirect URI, grant delegated `ResourceQuery.Resources.Read`, then create and bind the connection |
+| Connection reference looks set but flow says Invalid connection | The binding was not committed | Reopen the reference, choose the authorized connection, click Save **and** confirm Save changes; reopen to verify |
+| Query action has missing TableName/Clauses/Top or literal `@@variables('SkipToken')` | Imported body shape or typed designer expression | Re-enter the flattened query fields and insert the SkipToken variable using dynamic content; save, reopen, and run Flow checker |
+| Inventory-only or draft records appear in employee answer | Shared account rights or unverified audience; instructions are not an access boundary | Disable the employee channel, restrict Dataverse/MCP rights and verify with non-admin and unauthorized identities before republishing |
+| Organization knowledge points to an example SharePoint site | An older unmanaged import left an inherited placeholder source | Remove that source and attach approved KB-01, KB-02, and KB-03 files or an approved governed library |
+| Agent still searches the removed placeholder source | The published runtime retained an older knowledge binding | Remove the source in the Studio designer, save, publish, start a new chat, and repeat independent KB retrieval tests after indexing |
 
-## 15. Support boundary
+## 16. Support boundary
 
 This repository does not provide a support SLA. Before raising a public issue:
 

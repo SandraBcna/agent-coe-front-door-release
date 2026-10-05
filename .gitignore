@@ -1,9 +1,18 @@
-.DS_Store
-Thumbs.db
-~$*
-*.tmp
+node_modules/
+private/
+*.configured.zip
+*PRIVATE_SOURCE*
 *.log
 .env
 .env.*
-node_modules/
-
+!*.example
+__pycache__/
+.DS_Store
+qa/
+# Keep Office documents and their generation source out of the repository.
+*.docx
+*.dotx
+*.pptx
+*.potx
+*.pdf
+scripts/build-documents.cjs
