@@ -84,10 +84,10 @@ Do not import until required configuration items have owners and target values.
 
 ## 5. Import the solution
 
-1. Use `AgentCoEFrontDoor_1_0_0_7.zip` from the local draft release directory; it is not published on GitHub.
+1. Use `AgentCoEFrontDoor_1_0_0_2.zip` from the local draft release directory; it is not published on GitHub.
 2. Verify its SHA-256:
 
-   `58CF4DEA2FC4EB1482F4D80990247FE427070EC714E79C1EA730DAD4BA0D5C31`
+   `5C97F04C01D8A437F82A297F8A7B64086BF3B3D83E3B17B6918B64AD7E2971C3`
 
 3. In `make.powerapps.com`, select the target environment.
 4. Open **Solutions** and import the ZIP as an unmanaged solution.
@@ -95,7 +95,7 @@ Do not import until required configuration items have owners and target values.
 6. Wait for **Solution imported successfully**.
 7. Confirm:
    - unique name: `AgentCoEFrontDoor`
-   - version: `1.0.0.7` (draft package; an earlier build imported into CDX, but the latest ZIP without knowledge attachments has not had a fresh import)
+   - version: `1.0.0.2` (draft package; an earlier build imported into CDX, but the latest ZIP without knowledge attachments has not had a fresh import)
 8. Open solution history and capture the successful import result.
 9. Publish all customizations.
 
@@ -245,7 +245,7 @@ Pass when:
 
 | Area | Pass condition |
 |---|---|
-| Import | Solution history is successful and version is 1.0.0.7 |
+| Import | Solution history is successful and version is 1.0.0.2 |
 | Knowledge | KB-01, KB-02, and KB-03 retrieve independently for intended users |
 | Reuse | Catalogue is checked and unnecessary intake is avoided |
 | Intake | Confirmation is required before a valid TEST record is created |

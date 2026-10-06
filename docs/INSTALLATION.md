@@ -17,9 +17,9 @@ Confirm current Microsoft Product Terms and organizational policies rather than 
 
 ## Install
 
-1. Use `release/AgentCoEFrontDoor_1_0_0_7.zip` from this checkout (not yet published; earlier draft builds imported into CDX, but these exact bytes have not been clean-imported).
+1. Use `release/AgentCoEFrontDoor_1_0_0_2.zip` from this checkout (not yet published; earlier draft builds imported into CDX, but these exact bytes have not been clean-imported).
 2. Select the target environment in Power Apps and import the solution as unmanaged.
-3. Confirm import success and solution version `1.0.0.7`.
+3. Confirm import success and solution version `1.0.0.2`.
 4. Publish all customizations.
 5. Open the model-driven app, save and publish it once, then verify it launches.
 
@@ -61,7 +61,7 @@ Configure an approved connection and destination. Test both the actual recipient
 
 ## Minimum acceptance tests
 
-1. **Import:** solution history shows success and version 1.0.0.7.
+1. **Import:** solution history shows success and version 1.0.0.2.
 2. **Knowledge:** KB-01, KB-02, and KB-03 retrieve independently without source substitution.
 3. **Reuse:** catalogue lookup occurs before a new intake is proposed.
 4. **Intake:** only missing facts are collected and confirmation is required before writing.

@@ -2,7 +2,7 @@
 
 ## Status
 
-Agent CoE Front Door is an independent reusable reference template for evaluation and adaptation. Version 1.0.0.7 completed the non-production import and partial target validation described in the repository README. The Power Platform Inventory API requires target-specific delegated authentication and acceptance tests.
+Agent CoE Front Door is an independent reusable reference template for evaluation and adaptation. Version 1.0.0.2 completed the non-production import and partial target validation described in the repository README. The Power Platform Inventory API requires target-specific delegated authentication and acceptance tests.
 
 ## No Microsoft endorsement or support commitment
 

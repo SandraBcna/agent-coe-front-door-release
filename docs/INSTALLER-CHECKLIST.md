@@ -43,7 +43,7 @@ Copy this checklist into the organization's approved deployment record. Do not e
 - [ ] Release downloaded from GitHub
 - [ ] SHA-256 verified
 - [ ] Solution imported successfully
-- [ ] Version confirmed as 1.0.0.7
+- [ ] Version confirmed as 1.0.0.2
 - [ ] Parent agent instructions visible in Copilot Studio after import; if missing, restore from source configuration in the designer before testing or sharing
 - [ ] KB-01, KB-02, and KB-03 confirmed absent from the solution ZIP; retrieve the repository templates for target setup
 - [ ] Import history evidence captured

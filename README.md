@@ -25,15 +25,15 @@ The core pattern is **answer first, intake second**: describe the need, discover
 
 ## Download
 
-The current unmanaged solution source is version 1.0.0.7.
+The current unmanaged solution source is version 1.0.0.2.
 
 File:
 
-`release/AgentCoEFrontDoor_1_0_0_7.zip`
+`release/AgentCoEFrontDoor_1_0_0_2.zip`
 
 SHA-256:
 
-`58CF4DEA2FC4EB1482F4D80990247FE427070EC714E79C1EA730DAD4BA0D5C31`
+`5C97F04C01D8A437F82A297F8A7B64086BF3B3D83E3B17B6918B64AD7E2971C3`
 
 ## Included
 
@@ -68,7 +68,7 @@ Open validation gates are documented rather than hidden: the Power Platform Inve
 
 This package ships the three knowledge files as templates only: copy them from `knowledge/`, obtain local approval, attach them to the agent, and test retrieval before sharing it.
 
-An earlier build of version 1.0.0.7 was imported into a fresh sandbox; the exact ZIP bytes in this release differ by targeted instruction and packaging edits and have not been re-imported as these exact bytes. Perform your own clean import and functional verification before relying on it.
+An earlier build of version 1.0.0.2 was imported into a fresh sandbox; the exact ZIP bytes in this release differ by targeted instruction and packaging edits and have not been re-imported as these exact bytes. Perform your own clean import and functional verification before relying on it.
 
 Before importing, review:
 
